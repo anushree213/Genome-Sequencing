@@ -1,0 +1,371 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "53e2370d"
+      },
+      "source": [
+        "$\\rule{800pt}{20pt}$"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "LA1Xzh9QPs_O"
+      },
+      "source": [
+        "# Imports"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "528b2e2d",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "90c0e30a-e1c3-490c-e541-1bd7d7eb9e6b"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Mounted at /content/drive\n"
+          ]
+        }
+      ],
+      "source": [
+        "import os\n",
+        "import os.path\n",
+        "import time\n",
+        "from datetime import datetime\n",
+        "\n",
+        "import numpy as np\n",
+        "import pandas as pd\n",
+        "import seaborn as sns\n",
+        "import matplotlib.pyplot as plt\n",
+        "\n",
+        "import tensorflow as tf\n",
+        "from sklearn.preprocessing import StandardScaler\n",
+        "import cvxpy as cp\n",
+        "\n",
+        "tf.keras.utils.set_random_seed(42)\n",
+        "\n",
+        "from google.colab import drive\n",
+        "drive.mount('/content/drive')"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "4acc2627",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 36
+        },
+        "outputId": "9f0db0f2-ef87-4717-87ce-267cbfb6412c"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'/content'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 2
+        }
+      ],
+      "source": [
+        "os.getcwd()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "ao6gAjeDXDqS"
+      },
+      "outputs": [],
+      "source": [
+        "images_path = '/content/drive/My Drive/DSO_464_Spring_2024/Images'\n",
+        "\n",
+        "data_path = '/content/drive/My Drive/DSO_464_Spring_2024/14_Neural_Networks_for_Sequence_Data_Attention_Mechanism_and_Transformers_NNs_I_EX_Autoregressive_LLMs_and_GPTs/Data'"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "-U5iQ8JSNLeA"
+      },
+      "outputs": [],
+      "source": [
+        "# tf.keras.preprocessing.image.load_img(os.path.join(images_path, 'add_any_images_using_this_code.png'))"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "I_z9kc85Pwvu"
+      },
+      "source": [
+        "$\\rule{800pt}{20pt}$"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#Genome Classification to Personalize Oncology Treatment\n",
+        "\n",
+        "Precision oncology aims to tailor treatments based on individual genetic profiles (Kundra, Ritika, et al., 2021). However, interpreting the vast amounts of genomic data to determine the most effective treatment for cancer patients remains a significant challenge (Andrade, Jorge, et al., 2018). This can result in delayed treatment plans and decrease the likelihood of patient survival.\n",
+        "\n",
+        "\n",
+        "Startups such as [LatchBio](https://latch.bio/) and [Medidata](https://www.medidata.com/) are actively working on building solutions to speed up cancer treatment through AI.\n",
+        "\n",
+        "\n",
+        "**Solution:** Genomic Variant Interpretation for Personalized Cancer Therapy.\n",
+        "\n",
+        "Implement a transformer-based AI model that specializes in genomic sequence analysis to identify and interpret genetic mutations associated with different types of cancer. It can then be used to test different treatment plans and the model will read through genomic data, clinical studies, and patient records to recommend which treatment plans will be efficient and which will not (Kamps, Rick, et al., 2017).\n",
+        "\n",
+        "This approach can significantly transform the field of cancer treatment by making it faster and more precise.\n",
+        "\n",
+        "\n",
+        "**Hugging Face Model: BioBERT**\n",
+        "\n",
+        "Decided to use BioBERT as mentioned in the in class notebook, \"BioBERT is a BERT model retrained on a biomedical corpus. https://arxiv.org/ftp/arxiv/papers/1901/1901.08746.pdf\n",
+        "\n",
+        "\n",
+        "**Process:** Developed an AI system where oncologists can input a patient’s genomic data to identify known and novel mutations and cross-reference these with research and clinical trial outcomes to suggest whether a treatment option will be effective or not. As the model receives more data, it will get trained to increase the accuracy of predictions.\n",
+        "\n",
+        "\n",
+        "**Benefits:**\n",
+        "1. By studying the genome type of the patient and providing personalized treatment based on their genetic profile, the probability of success of the treatment will increase.\n",
+        "2. It will allow the oncologist to reduce the time needed to identify the best treatment methods. Speeding up the time from diagnosis to treatment can be crucial in increasing patient survival rates in fast mutating diseases such as cancer.\n",
+        "3. Quick, research-backed treatment options will also help in streamlining the work done by Oncologists.\n",
+        "\n",
+        "\n",
+        "The model can be evaluated by assessing the accuracy of the treatment recommendations by comparing treatment outcomes with the predicted efficacy.\n",
+        "\n",
+        "\n",
+        "**Appendix**\n",
+        "\n",
+        "Kundra, Ritika, et al. \"OncoTree: a cancer classification system for precision oncology.\" JCO clinical cancer informatics 5 (2021): 221-230.\n",
+        "\n",
+        "Andrade, Jorge, Suzanne M. Cox, and Samuel L. Volchenboum. \"Large-scale data sharing initiatives in genomic oncology.\" Advances in Molecular Pathology 1.1 (2018): 135-148.\n",
+        "\n",
+        "Kamps, Rick, et al. \"Next-generation sequencing in oncology: genetic diagnosis, risk prediction and cancer classification.\" International journal of molecular sciences 18.2 (2017): 308.\n"
+      ],
+      "metadata": {
+        "id": "Mplx3YnuWl9w"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# It processes this sequence through the BioBERT model to predict the treatment outcomes."
+      ],
+      "metadata": {
+        "id": "NKuMO8c9rYxG"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install datasets"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "wQgUOrN4yOn2",
+        "outputId": "25fb9119-bfc4-4686-a58e-6aba4c8d88b3"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Collecting datasets\n",
+            "  Downloading datasets-2.19.1-py3-none-any.whl (542 kB)\n",
+            "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m542.0/542.0 kB\u001b[0m \u001b[31m8.5 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hRequirement already satisfied: filelock in /usr/local/lib/python3.10/dist-packages (from datasets) (3.14.0)\n",
+            "Requirement already satisfied: numpy>=1.17 in /usr/local/lib/python3.10/dist-packages (from datasets) (1.25.2)\n",
+            "Requirement already satisfied: pyarrow>=12.0.0 in /usr/local/lib/python3.10/dist-packages (from datasets) (14.0.2)\n",
+            "Requirement already satisfied: pyarrow-hotfix in /usr/local/lib/python3.10/dist-packages (from datasets) (0.6)\n",
+            "Collecting dill<0.3.9,>=0.3.0 (from datasets)\n",
+            "  Downloading dill-0.3.8-py3-none-any.whl (116 kB)\n",
+            "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m116.3/116.3 kB\u001b[0m \u001b[31m7.4 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hRequirement already satisfied: pandas in /usr/local/lib/python3.10/dist-packages (from datasets) (2.0.3)\n",
+            "Requirement already satisfied: requests>=2.19.0 in /usr/local/lib/python3.10/dist-packages (from datasets) (2.31.0)\n",
+            "Requirement already satisfied: tqdm>=4.62.1 in /usr/local/lib/python3.10/dist-packages (from datasets) (4.66.4)\n",
+            "Collecting xxhash (from datasets)\n",
+            "  Downloading xxhash-3.4.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (194 kB)\n",
+            "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m194.1/194.1 kB\u001b[0m \u001b[31m10.4 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hCollecting multiprocess (from datasets)\n",
+            "  Downloading multiprocess-0.70.16-py310-none-any.whl (134 kB)\n",
+            "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m134.8/134.8 kB\u001b[0m \u001b[31m14.1 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hRequirement already satisfied: fsspec[http]<=2024.3.1,>=2023.1.0 in /usr/local/lib/python3.10/dist-packages (from datasets) (2023.6.0)\n",
+            "Requirement already satisfied: aiohttp in /usr/local/lib/python3.10/dist-packages (from datasets) (3.9.5)\n",
+            "Collecting huggingface-hub>=0.21.2 (from datasets)\n",
+            "  Downloading huggingface_hub-0.23.0-py3-none-any.whl (401 kB)\n",
+            "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m401.2/401.2 kB\u001b[0m \u001b[31m12.8 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hRequirement already satisfied: packaging in /usr/local/lib/python3.10/dist-packages (from datasets) (24.0)\n",
+            "Requirement already satisfied: pyyaml>=5.1 in /usr/local/lib/python3.10/dist-packages (from datasets) (6.0.1)\n",
+            "Requirement already satisfied: aiosignal>=1.1.2 in /usr/local/lib/python3.10/dist-packages (from aiohttp->datasets) (1.3.1)\n",
+            "Requirement already satisfied: attrs>=17.3.0 in /usr/local/lib/python3.10/dist-packages (from aiohttp->datasets) (23.2.0)\n",
+            "Requirement already satisfied: frozenlist>=1.1.1 in /usr/local/lib/python3.10/dist-packages (from aiohttp->datasets) (1.4.1)\n",
+            "Requirement already satisfied: multidict<7.0,>=4.5 in /usr/local/lib/python3.10/dist-packages (from aiohttp->datasets) (6.0.5)\n",
+            "Requirement already satisfied: yarl<2.0,>=1.0 in /usr/local/lib/python3.10/dist-packages (from aiohttp->datasets) (1.9.4)\n",
+            "Requirement already satisfied: async-timeout<5.0,>=4.0 in /usr/local/lib/python3.10/dist-packages (from aiohttp->datasets) (4.0.3)\n",
+            "Requirement already satisfied: typing-extensions>=3.7.4.3 in /usr/local/lib/python3.10/dist-packages (from huggingface-hub>=0.21.2->datasets) (4.11.0)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.10/dist-packages (from requests>=2.19.0->datasets) (3.3.2)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.10/dist-packages (from requests>=2.19.0->datasets) (3.7)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.10/dist-packages (from requests>=2.19.0->datasets) (2.0.7)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.10/dist-packages (from requests>=2.19.0->datasets) (2024.2.2)\n",
+            "Requirement already satisfied: python-dateutil>=2.8.2 in /usr/local/lib/python3.10/dist-packages (from pandas->datasets) (2.8.2)\n",
+            "Requirement already satisfied: pytz>=2020.1 in /usr/local/lib/python3.10/dist-packages (from pandas->datasets) (2023.4)\n",
+            "Requirement already satisfied: tzdata>=2022.1 in /usr/local/lib/python3.10/dist-packages (from pandas->datasets) (2024.1)\n",
+            "Requirement already satisfied: six>=1.5 in /usr/local/lib/python3.10/dist-packages (from python-dateutil>=2.8.2->pandas->datasets) (1.16.0)\n",
+            "Installing collected packages: xxhash, dill, multiprocess, huggingface-hub, datasets\n",
+            "  Attempting uninstall: huggingface-hub\n",
+            "    Found existing installation: huggingface-hub 0.20.3\n",
+            "    Uninstalling huggingface-hub-0.20.3:\n",
+            "      Successfully uninstalled huggingface-hub-0.20.3\n",
+            "Successfully installed datasets-2.19.1 dill-0.3.8 huggingface-hub-0.23.0 multiprocess-0.70.16 xxhash-3.4.1\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import transformers\n",
+        "from transformers import TFAutoModelForSequenceClassification, AutoTokenizer\n",
+        "\n",
+        "model_name = \"giacomomiolo/biobert_reupload\"\n",
+        "\n",
+        "# pre-processing\n",
+        "tokenizer = transformers.AutoTokenizer.from_pretrained(model_name)\n",
+        "\n",
+        "# processing\n",
+        "model = TFAutoModelForSequenceClassification.from_pretrained(model_name)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "qOUdft7UUxXo",
+        "outputId": "1a14148d-9705-4bf0-9835-dc62539e56a5"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "All model checkpoint layers were used when initializing TFBertForSequenceClassification.\n",
+            "\n",
+            "Some layers of TFBertForSequenceClassification were not initialized from the model checkpoint at giacomomiolo/biobert_reupload and are newly initialized: ['classifier']\n",
+            "You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Sequence classification\n",
+        "def classify_sequence(sequence):\n",
+        "    inputs = tokenizer(sequence, return_tensors='tf', padding=True, truncation=True, max_length=512)\n",
+        "    model_outputs = model(inputs)\n",
+        "    output_layer = tf.keras.layers.Dense(2, activation=\"softmax\")\n",
+        "    Y_probability = output_layer(model_outputs.logits)\n",
+        "    probabilities = Y_probability.numpy()[0]\n",
+        "    return {\"non_effective\": float(probabilities[0]), \"effective\": float(probabilities[1])}"
+      ],
+      "metadata": {
+        "id": "M25q0GG5epT4"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# test\n",
+        "sequence = \"ATCGTTAGCTAGCTAGCTACGTAGCTAGCTA\"\n",
+        "result = classify_sequence(sequence)\n",
+        "print(result)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "DDOVLoxKbbLP",
+        "outputId": "ddce8e1b-cafa-4e4e-f395-c0f8a45de155"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "{'non_effective': 0.599668562412262, 'effective': 0.4003314673900604}\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "model = transformers.TFAutoModelForSequenceClassification.from_pretrained('giacomomiolo/biobert_reupload', num_labels = 2)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "xQF3u9PwcrwW",
+        "outputId": "15646310-88fd-42ef-d309-eafa64efda14"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "All model checkpoint layers were used when initializing TFBertForSequenceClassification.\n",
+            "\n",
+            "Some layers of TFBertForSequenceClassification were not initialized from the model checkpoint at giacomomiolo/biobert_reupload and are newly initialized: ['classifier']\n",
+            "You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
